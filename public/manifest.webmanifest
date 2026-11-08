@@ -1,6 +1,6 @@
 {
-  "name": "Chez Mamie · Commande vocale",
-  "short_name": "Mamie Voice",
+  "name": "Talkie Pookie",
+  "short_name": "Talkie Pookie",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f6ecd9",

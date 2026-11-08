@@ -55,9 +55,10 @@ main { flex: 1; overflow-y: auto; padding: 4px 16px calc(var(--dock-h) + 8px); }
   padding-bottom: env(safe-area-inset-bottom);
   background: linear-gradient(to top, var(--cream) 62%, rgba(246,236,217,0));
 }
+.dock { pointer-events: none; }
+.dock > * { pointer-events: auto; }
 .dock .hint { font-size: 13px; font-weight: 600; opacity: .7; }
 .dock .where { position: absolute; right: 22px; top: 52px; font-size: 13px; font-weight: 800; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 999px; padding: 6px 12px; box-shadow: 2px 2px 0 var(--ink); }
-.dock .kbd { position: absolute; left: 22px; top: 52px; width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--paper); font-size: 20px; box-shadow: 2px 2px 0 var(--ink); }
 .mic {
   position: relative; width: 112px; height: 112px; border-radius: 50%; border: 3.5px solid var(--ink); background: var(--orange); color: #fff;
   display: grid; place-items: center; box-shadow: 5px 5px 0 var(--ink); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
@@ -72,7 +73,7 @@ main { flex: 1; overflow-y: auto; padding: 4px 16px calc(var(--dock-h) + 8px); }
 
 /* ───── feuille de commande ───── */
 .sheet {
-  position: absolute; left: 0; right: 0; bottom: calc(var(--dock-h) - 36px); max-height: calc(100% - 90px - var(--dock-h) + 36px); z-index: 20; overflow-y: auto;
+  position: absolute; left: 0; right: 0; bottom: calc(var(--dock-h) - 14px); max-height: calc(100% - 90px - var(--dock-h) + 14px); z-index: 20; overflow-y: auto;
   background: var(--paper); border: 3px solid var(--ink); border-bottom: none; border-radius: 22px 22px 0 0; padding: 14px 16px 44px; box-shadow: 0 -4px 0 rgba(0,0,0,.08);
   animation: up .2s ease-out;
 }
@@ -124,9 +125,6 @@ pre { background: var(--ink); color: #c9f5d9; border-radius: 12px; padding: 12px
 
 .toast { position: absolute; top: calc(env(safe-area-inset-top) + 64px); left: 50%; transform: translateX(-50%); z-index: 60; background: var(--ink); color: #fff; border-radius: 999px; padding: 9px 16px; font-size: 14px; font-weight: 600; max-width: 90%; text-align: center; animation: up .2s ease-out; }
 
-.typebar { position: absolute; left: 12px; right: 12px; bottom: calc(var(--dock-h) - 8px); z-index: 40; display: flex; gap: 8px; background: var(--paper); border: 3px solid var(--ink); border-radius: 16px; padding: 8px; box-shadow: var(--shadow); }
-.typebar input { flex: 1; min-width: 0; border: none; background: none; font-size: 16px; outline: none; padding: 0 6px; }
-.typebar .primary { padding: 8px 16px; }
 
 /* ───── réglages ───── */
 .modal { position: absolute; inset: 0; z-index: 80; background: rgba(0,0,0,.45); display: grid; align-items: end; }
@@ -135,3 +133,39 @@ pre { background: var(--ink); color: #c9f5d9; border-radius: 12px; padding: 12px
 .radio, .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin: 8px 0; }
 .radio input, .check input { margin-top: 3px; accent-color: var(--orange); width: 18px; height: 18px; flex: none; }
 .small { font-size: 12px; opacity: .65; margin: 6px 0; }
+
+/* ───── bouton Carte + panneau de prise de commande ───── */
+.dock .cart { position: absolute; left: 20px; top: 48px; height: 48px; padding: 0 14px; border-radius: 999px; border: 2.5px solid var(--ink); background: var(--paper); font-size: 20px; font-weight: 800; box-shadow: 2px 2px 0 var(--ink); display: flex; align-items: center; gap: 6px; }
+.dock .cart span { font-size: 14px; }
+
+.pos {
+  position: absolute; left: 0; right: 0; top: calc(env(safe-area-inset-top) + 66px); bottom: calc(var(--dock-h) - 14px); z-index: 25; display: flex; flex-direction: column;
+  background: var(--paper); border: 3px solid var(--ink); border-bottom: none; border-radius: 22px 22px 0 0; padding: 12px 12px 0; animation: up .2s ease-out;
+}
+.pos header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.pos h2 { font-size: 22px; font-weight: 900; text-transform: uppercase; flex: 1; margin: 0; }
+.pos select { font: inherit; font-weight: 800; border: 2.5px solid var(--ink); border-radius: 999px; padding: 6px 10px; background: #fff; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; flex: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { flex: none; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; padding: 7px 14px; font-weight: 800; font-size: 14px; }
+.tabs.groups button { font-size: 15px; padding: 9px 16px; }
+.tabs button.on { background: var(--ink); color: var(--cream); }
+.tabs.subs button { border-width: 2px; padding: 5px 12px; font-size: 13px; }
+.tabs.subs button.on { background: var(--orange); color: #fff; border-color: var(--ink); }
+.grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; padding: 2px 2px 80px; }
+.tile { position: relative; background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; box-shadow: 2px 2px 0 var(--ink); display: flex; flex-direction: column; min-height: 84px; }
+.tile.has { background: #ffe9dc; border-color: var(--orange); box-shadow: 2px 2px 0 var(--orange); }
+.tile .body { flex: 1; border: none; background: none; text-align: left; padding: 10px 10px 8px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; border-radius: 12px; }
+.tile .body:disabled { color: inherit; cursor: default; }
+.tile .body:not(:disabled):active { background: var(--peach); }
+.tile .n { font-weight: 800; font-size: 14px; line-height: 1.15; padding-right: 4px; }
+.tile .p { font-size: 13px; font-weight: 700; opacity: .7; }
+.tile .badge { position: absolute; top: -10px; right: -6px; z-index: 2; display: flex; align-items: center; background: var(--orange); color: #fff; border: 2.5px solid var(--ink); border-radius: 999px; }
+.tile .badge b { min-width: 24px; text-align: center; padding-right: 6px; font-size: 14px; }
+.tile .badge button { width: 28px; height: 28px; border: none; background: none; color: #fff; font-size: 20px; font-weight: 900; padding: 0; line-height: 1; }
+.tile .sizes { display: flex; gap: 6px; padding: 0 8px 8px; }
+.tile .sizes button { flex: 1; border: 2px solid var(--ink); border-radius: 10px; background: var(--peach); padding: 6px 4px; font-weight: 800; font-size: 13px; display: grid; line-height: 1.1; }
+.tile .sizes button small { font-weight: 700; opacity: .75; font-size: 11px; }
+.tile .sizes button:active { background: var(--orange); color: #fff; }
+.pos footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px 14px; background: linear-gradient(to top, var(--paper) 80%, rgba(255,250,240,0)); font-size: 14px; }
+.pos footer .primary { padding: 10px 16px; font-size: 15px; }

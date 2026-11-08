@@ -1,4 +1,4 @@
-# Chez Mamie · prise de commande vocale (prototype)
+# Talkie Pookie · prise de commande vocale (prototype Chez Mamie)
 
 Plan de salle + un gros bouton micro. On **maintient** le bouton, on dicte
 (« table 7, deux blondes, une bavette saignante, un mojito sans glace »), les articles
@@ -13,7 +13,7 @@ npm run dev      # http://localhost:5173 (et l'URL réseau pour le téléphone)
 npm test         # tests du parseur
 ```
 
-Sur ordinateur : **maintenir la barre espace** = micro. Bouton ⌨ = saisir la phrase au clavier (utile pour tester sans micro).
+Sur ordinateur : **maintenir la barre espace** = micro. Bouton ▦ Carte = prise de commande classique (catégories, ajout / suppression) qui alimente le même ticket que la voix.
 
 > Le micro d'un navigateur exige **HTTPS** (sauf `localhost`). Pour tester sur téléphone : pousser sur GitHub
 > (le workflow `.github/workflows/deploy.yml` publie sur GitHub Pages) puis ouvrir l'URL dans Safari/Chrome.

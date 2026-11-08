@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Catalog } from './components/Catalog'
 import { FloorPlan, type TableStatus } from './components/FloorPlan'
 import { MicButton, type Phase } from './components/MicButton'
 import { SettingsModal } from './components/SettingsModal'
 import { TicketSheet } from './components/TicketSheet'
 import { refineWithLlm } from './lib/llm'
-import { mergeLines, toPosPayload, total } from './lib/order'
+import { makeLine, mergeLines, toPosPayload, total } from './lib/order'
 import { parseOrder } from './lib/parser'
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './lib/settings'
 import { startListening, webSpeechSupported, type SttSession } from './lib/stt'
@@ -38,8 +39,7 @@ export default function App() {
   const [liveLines, setLiveLines] = useState<Line[]>([])
   const [toast, setToast] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
-  const [typing, setTyping] = useState(false)
-  const [typed, setTyped] = useState('')
+  const [posOpen, setPosOpen] = useState(false)
   const session = useRef<SttSession | null>(null)
   const toastTimer = useRef<number>()
   const lastStt = useRef('webspeech')
@@ -78,7 +78,7 @@ export default function App() {
     if (phase !== 'idle') return
     if (settings.engine === 'groq' && !settings.groqKey) say('Pas de clé Groq : micro du navigateur utilisé')
     if (effectiveEngine === 'webspeech' && !webSpeechSupported()) {
-      say('Reconnaissance vocale non supportée ici — utilise ⌨ ou Chrome/Safari')
+      say('Reconnaissance vocale non supportée ici — utilise la carte ▦ ou Chrome/Safari')
       return
     }
     setLiveText('')
@@ -169,21 +169,19 @@ export default function App() {
     }
   }, [])
 
-  const submitTyped = async () => {
-    const t = typed.trim()
-    if (!t) return
-    setTyped('')
-    setTyping(false)
-    setPhase('processing')
-    try {
-      await finalize(t, 'text')
-    } finally {
-      setPhase('idle')
-      setLiveText('')
-    }
-  }
-
   // ───────────── actions ─────────────
+
+  // Ajout / retrait manuel depuis la carte (même ticket que la voix)
+  const addItem = (menuId: string, size: string | null) =>
+    setDraft((d) => ({ ...d, lines: mergeLines(d.lines, [makeLine({ menuId, size })]) }))
+
+  const removeOne = (menuId: string) =>
+    setDraft((d) => {
+      const i = d.lines.map((l) => l.menuId).lastIndexOf(menuId)
+      if (i < 0) return d
+      const lines = d.lines.flatMap((l, k) => (k !== i ? [l] : l.qty > 1 ? [{ ...l, qty: l.qty - 1 }] : []))
+      return { ...d, lines }
+    })
 
   const selectTable = (n: number) => {
     if (selected === n && draft.lines.length === 0 && phase === 'idle') setSelected(null)
@@ -206,8 +204,8 @@ export default function App() {
       createdAt: new Date().toISOString(),
       lines: draft.lines,
       transcript: draft.transcripts.join(' / '),
-      stt: lastStt.current,
-      parser: draft.parser,
+      stt: draft.transcripts.length ? lastStt.current : 'manual',
+      parser: draft.transcripts.length ? draft.parser : 'manual',
     }
     setOrders((o) => [...o, order])
     clearDraft()
@@ -240,8 +238,8 @@ export default function App() {
       <header className="top">
         <img src="./logo.jpg" alt="" />
         <div>
-          <h1>Chez Mamie</h1>
-          <p>Service du midi</p>
+          <h1>Talkie Pookie</h1>
+          <p>Chez Mamie · service du midi</p>
         </div>
         <button className="gear" onClick={() => setShowSettings(true)} aria-label="Réglages">
           ⚙︎
@@ -255,7 +253,18 @@ export default function App() {
         </p>
       </main>
 
-      {sheetOpen && (
+      {posOpen && (
+        <Catalog
+          table={selected}
+          lines={draft.lines}
+          onPickTable={setSelected}
+          onAdd={addItem}
+          onRemove={removeOne}
+          onClose={() => setPosOpen(false)}
+        />
+      )}
+
+      {sheetOpen && !posOpen && (
         <TicketSheet
           table={selected}
           draft={draft.lines}
@@ -278,22 +287,9 @@ export default function App() {
 
       {toast && <div className="toast">{toast}</div>}
 
-      {typing && (
-        <form
-          className="typebar"
-          onSubmit={(e) => {
-            e.preventDefault()
-            void submitTyped()
-          }}
-        >
-          <input autoFocus value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="table 4, deux blondes et une bavette saignante" />
-          <button className="primary">OK</button>
-        </form>
-      )}
-
       <footer className={`dock ${phase}`}>
-        <button className="kbd" onClick={() => setTyping((v) => !v)} aria-label="Saisir au clavier">
-          ⌨
+        <button className="cart" onClick={() => setPosOpen((v) => !v)} aria-label="Ouvrir la carte">
+          ▦<span>Carte</span>
         </button>
         <MicButton phase={phase} onStart={startDictation} onEnd={endDictation} />
         <div className="where">{selected ? `Table ${selected}` : 'Table ?'}</div>
